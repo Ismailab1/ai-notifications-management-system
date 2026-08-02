@@ -1,0 +1,9 @@
+anthropic>=0.40.0
+pandas>=2.2.0
+python-dotenv>=1.0.0
+pillow>=10.0.0
+rapidfuzz>=3.9.0
+
+# Local ASR for voice notes (no cloud speech API required).
+# faster-whisper is lighter than openai-whisper and works well on CPU.
+faster-whisper>=1.0.0
