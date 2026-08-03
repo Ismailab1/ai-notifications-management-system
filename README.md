@@ -39,6 +39,58 @@ media extraction → safety pre-filter → context assembly → evidence retriev
 
 ---
 
+## How to Run It
+
+```bash
+cd code
+python3 -m venv .venv && source .venv/bin/activate   # optional but recommended
+pip install -r requirements.txt
+
+cp .env.example .env
+# edit .env and set ANTHROPIC_API_KEY (from https://console.anthropic.com)
+```
+
+`ffmpeg` needs to be on your `PATH` for voice-note transcription (`apt install ffmpeg` / `brew install ffmpeg`).
+
+```bash
+# 1. Wiring check -- no API key or network needed, just proves everything imports and runs
+python evaluation/main.py --dry-run
+
+# 2. Real evaluation against the 30 hand-solved sample rows (fast, cheap, do this before the full run)
+python evaluation/main.py
+# add --verbose to see every row's diff, not just mismatches
+
+# 3. Full run -- routes all 110 messages in dataset/messages.csv, writes dataset/output.csv
+python main.py
+
+# Run the unit test suite (32 tests, no API key needed)
+python tests/test_safety.py tests/test_retrieval.py tests/test_load_signal.py tests/test_context.py
+# or: pytest tests/
+```
+
+All commands run from `code/`. See [`code/README.md`](./code/README.md) for flags (`--limit`, `--dataset-dir`, `--output`) and the full per-module architecture.
+
+---
+
+## Reading the Results
+
+Every run produces `dataset/output.csv`, one row per message:
+
+| Column | What it means |
+| --- | --- |
+| `message_id` | The message being routed |
+| `action` | `notify` (interrupt now) / `digest` (show later) / `mute` (suppress) |
+| `message_type` | Best-fit category — `personal`, `urgent`, `event`, `payment`, `business_update`, `promotion`, `greeting`, `forward`, `spam`, `scam`, or `unknown` |
+| `reason` | One sentence explaining the decision, specific to this message and recipient |
+| `confidence` | 0–1. Capped rather than let the model overclaim on genuinely under-informed messages (no useful text or media, no thread history) |
+| `evidence_message_ids` | Semicolon-separated historical message IDs the decision leaned on, or `none` |
+
+A `reason` that cites a hard override (e.g. "Message body attempts to instruct the router directly...") means the deterministic safety layer wrote that row directly and the LLM was never called for it — those are the rows to trust most, since their correctness doesn't depend on a model call succeeding.
+
+`python evaluation/main.py` prints a summary broken out by `media_type` (text/image/voice) with three numbers per slice: `action` accuracy, `message_type` accuracy, and `evidence_overlap` (whether the predicted evidence shares at least one ID with the solved answer, or both say `none`), plus the average confidence deviation from the solved values. Use `--verbose` to see the predicted-vs-solved diff for every row, not just the mismatches — that's the fastest way to see *why* a particular row landed where it did.
+
+---
+
 ## Key Decisions & Tradeoffs
 
 **Deterministic hard overrides, not LLM judgment, for the highest-stakes calls.** Prompt injection and confirmed compromised senders skip the model entirely and write the row directly. A model can be argued with by a sufficiently clever message; a fixed rule can't. This meant a chunk of the engineering effort went into finding *real* gaps in those rules against the actual data (e.g. a lottery-scam message with zero keyword-category matches, or an injection attempt phrased as fake structured metadata) rather than trusting the rules by inspection.
