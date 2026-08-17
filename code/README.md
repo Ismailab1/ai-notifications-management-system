@@ -50,15 +50,17 @@ python tests/test_output_alignment.py
 python tests/test_reasoning.py
 python tests/test_pipeline.py
 python tests/test_safety_invariants.py
+python tests/test_evaluation_harness.py
 # or: pytest tests/
 ```
 
-62 pure-logic unit tests total (19 safety + 5 retrieval + 5 situational-load
+67 pure-logic unit tests total (19 safety + 5 retrieval + 5 situational-load
 + 4 context/engagement + 4 output-alignment + 17 reasoning + 1 pipeline
-cache + 7 safety-invariant spot-checks) -- no API key, no network,
-sub-second to run (the reasoning retry tests fake the Anthropic client
-entirely, so backoff/retry logic is exercised without a real network call
-or a real delay).
+cache + 7 safety-invariant spot-checks + 5 evaluation-harness round-trip) --
+no API key, no network, sub-second to run (the reasoning retry tests fake
+the Anthropic client entirely, so backoff/retry logic is exercised without
+a real network call or a real delay; the harness round-trip tests write and
+read back real temp CSV files rather than comparing in-memory data).
 `test_safety.py` is what to point at in the AI Judge interview for "how do
 you know the injection defense (and now the domain-lookalike override)
 works independent of what the model would have done"; several cases are run
@@ -98,6 +100,7 @@ code/
 │   ├── test_reasoning.py    behavioral-evidence invariant + retry/fallback/structured-output tests
 │   ├── test_pipeline.py     regression test for the decision-cache dry-run/real key separation
 │   ├── test_safety_invariants.py    adversarial spot-checks for SAFETY_INVARIANTS.md's HARD rules
+│   ├── test_evaluation_harness.py   round-trip test for the harness's own row-order detector
 │   └── adversarial_llm_spotcheck.py  real-API spot-checks for the PROMPT-level rules (manual, not in the fast suite)
 ├── SAFETY_INVARIANTS.md     the small number of rules that hold on every message, and how each is enforced
 └── router/
