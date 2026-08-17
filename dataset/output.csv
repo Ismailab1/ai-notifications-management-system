@@ -1,111 +1,111 @@
 message_id,action,message_type,reason,confidence,evidence_message_ids
-msg_001,notify,urgent,"Same-day operational notice with a 20-minute deadline for water supply, needs prompt action from residents.",0.85,message_0057;message_0139;message_0240
-msg_002,notify,urgent,"Direct time-sensitive request to the recipient before a client meeting, matching a pattern this user reliably replies to.",0.88,message_0003;message_0059;message_0169
-msg_003,notify,business_update,"Verified Amazon delivery status update matching an expected delivery today, aligned with an engaged relationship.",0.9,message_0400;message_0031
-msg_004,notify,business_update,Verified Apollo 24|7 account sending an appointment-related update to a user with an upcoming clinic appointment who reliably engages with these messages.,0.72,message_0245;message_0005;message_0064;message_0063
-msg_005,digest,unknown,"A marketplace hold-until-6PM notice with a soft deadline, but declining engagement and no recent thread activity make immediate interruption unwarranted.",0.55,message_0065;message_0049
-msg_006,notify,urgent,"Same-day deadline notice about maintenance payment closing at 5 PM, requiring timely awareness from an admin group member.",0.78,message_0029;message_0044
-msg_007,digest,event,Non-urgent society event announcement with a week-long registration window and explicit no-response-needed note.,0.87,none
-msg_008,digest,business_update,Routine post-purchase review request from a verified brand with no time-sensitive content.,0.9,message_0296;message_0071;message_0072
-msg_009,mute,event,User has explicitly muted this sports group and the message is a low-urgency casual plan with no personal ask.,0.93,message_0074
-msg_010,digest,business_update,"Routine post-visit feedback request from verified cinema brand, not time-sensitive.",0.85,message_0011;message_0242;message_0075
-msg_011,mute,forward,"Mass-forwarded chain positivity message in a group the user has explicitly muted, matching a repeated pattern of dismissed forwards.",0.95,message_0013;message_0014;message_0123;message_0171;message_0077
-msg_012,mute,spam,Mass-forwarded chain health message with share-pressure phrasing matches a pattern this user consistently dismisses.,0.9,message_0194;message_0178;message_0079
-msg_013,mute,spam,"Unsolicited furniture resale ad posted in a university faculty advising group, unrelated to advising content.",0.88,none
-msg_014,mute,promotion,"User explicitly opted out of promotions from Swish, so this marketing message should be suppressed.",0.98,message_0258;message_0018;message_0017;message_0083;message_0084
-msg_015,mute,scam,"Classic OTP-phishing pressure tactic in a large marketplace group, matching prior flagged OTP scam pattern.",0.97,message_0023;message_0045
-msg_016,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0087;message_0183;message_0201
-msg_017,mute,scam,"Payment-pressure scam pattern in a muted marketplace group, consistent with prior reported messages from this user.",0.93,message_0090;message_0089
-msg_018,mute,scam,Mass-forwarded prize/lottery claim matches prior scam pattern the recipient already reported and muted.,0.96,message_0026;message_0092
-msg_019,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=chase.com, used=chase-secure-alert.com, age=10d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
-msg_020,mute,scam,"Unsolicited urgency plus a shortened verification link in a large marketplace group is a classic phishing pattern, not a genuine account notice.",0.93,none
-msg_021,notify,payment,"Same-day payment deadline in a society group where this admin user historically engages with such notices, and it even warns against fraudulent payment links.",0.72,message_0098;message_0068
-msg_022,mute,scam,Classic payment-pressure/screenshot pattern from a group thread matching prior scam attempts the recipient already reported and muted.,0.93,message_0151;message_0099;message_0100
-msg_023,notify,business_update,"Verified bank account with an active relationship sending a routine payment/account update, similar to past messages the user opened or replied to.",0.72,message_0243;message_0102;message_0101
-msg_024,mute,promotion,Routine promotional offer from a business the recipient has explicitly opted out of and consistently dismisses.,0.97,message_0257;message_0103;message_0158
-msg_025,notify,business_update,Verified Amazon order update the recipient has previously engaged with and replied to on similar messages.,0.85,message_0239;message_0004;message_0105
-msg_026,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=amazon.in, used=amazonpay-delivery.in, age=2d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
-msg_027,digest,promotion,"Routine marketing offer repeated from this travel business, low urgency, though link domain mismatch and mismatched poster branding warrant a lower touch.",0.75,message_0272;message_0033;message_0007
-msg_028,mute,promotion,"Marketing message to a user who opted out of travel promotions from this business, with a mismatched sender domain adding risk.",0.95,message_0034;message_0112;message_0111
-msg_029,mute,spam,Mass-forwarded resale listing in a large declining-engagement marketplace group with no direct relevance to the recipient.,0.75,message_0095;message_0113;message_0332
-msg_030,mute,spam,"Routine resale listing in a marketplace group the user has explicitly muted, matching past dismissed posts.",0.95,message_0115;message_0335
-msg_031,notify,urgent,"Same-day coworker sync requires bringing specific materials and closing action items tonight, a time-sensitive operational ask.",0.85,message_0362;message_0228
-msg_032,digest,event,"A non-urgent, self-described no-rush request for lecture slides in a large study group, similar to past routine messages the recipient opened.",0.87,message_0119;message_0285
-msg_033,notify,personal,"A warm check-in from family asking for a callback, low urgency but personal and worth surfacing normally",0.72,none
-msg_034,mute,forward,"Mass-forwarded chain-style blessing message in a family group the user has explicitly muted, matching a repeated pattern of dismissed forwards.",0.85,message_0123;message_0171;message_0077
-msg_035,digest,promotion,"Marketing message from a verified business account about payouts, no urgency, matches recipient's pattern of opening but not replying to similar promos.",0.85,message_0281;message_0125
-msg_036,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=razorpayx.com, used=razorpayx-payouts.com, age=9d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
-msg_037,notify,urgent,"Same-day operational notice about water tanker arriving with a 10-minute window, requiring immediate action from residents including this admin.",0.87,message_0001
-msg_038,mute,spam,"Mass-forwarded chain-letter/luck message with no genuine urgency despite claiming to be urgent, matching prior muted forwards in this group.",0.94,message_0131;message_0132
-msg_039,notify,urgent,Same-day deadline naming this recipient's child regarding a fee receipt needed before the field-trip list closes.,0.85,message_0364
-msg_040,mute,spam,"Chain-letter forward-for-luck message in a group the user has explicitly muted, with no personal urgency.",0.95,message_0136;message_0135
-msg_041,mute,scam,"Claims to be from verified Polaris but uses a mismatched link-shortener domain (weurl.co) instead of the official polaris.school domain, a classic phishing pattern.",0.72,message_0137;message_0138
-msg_042,notify,urgent,"Same-day operational notice requiring immediate action to avoid car being towed, within a 10-minute window.",0.92,message_0058;message_0140
-msg_043,notify,urgent,Same-day operational notice about a water tanker leaving in 15 minutes requires immediate action from residents.,0.82,message_0216;message_0130;message_0150
-msg_044,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0143
-msg_045,notify,urgent,Time-boxed delivery request needing confirmation within 10 minutes requires prompt action from the recipient.,0.72,none
-msg_046,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0147;message_0148
-msg_047,notify,urgent,"Same-day operational notice affecting lift access, needs awareness now not later",0.82,message_0001
-msg_048,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0151
-msg_049,notify,business_update,"Verified Shopee return pickup scheduled today within a narrow window, matching an active return-pickup relationship the recipient regularly engages with.",0.72,message_0291;message_0154;message_0153
-msg_050,notify,business_update,"Generic vague health-update wording lacks pharmacy-specific detail unlike prior refill notices, but engaged prescription_refill relationship supports timely notify.",0.45,message_0279;message_0155
-msg_051,mute,promotion,Promotional offer from a business the user has explicitly opted out of and consistently dismisses.,0.97,message_0257;message_0103;message_0158
-msg_052,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=talabat.com, used=talabat-refund.com, age=12d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
-msg_053,digest,business_update,"Routine non-urgent market research note in an investment tips group, matching prior similar posts the recipient just reads later.",0.75,message_0411;message_0161;message_0253
-msg_054,mute,scam,"Classic advance-fee loan scam pattern with urgency pressure, matching prior reported/muted messages in this group's history.",0.95,message_0389;message_0203;message_0163
-msg_055,notify,urgent,"Sender explicitly needs a callback within ten minutes to make a real-time decision, a genuine time-sensitive request.",0.88,message_0166
-msg_056,notify,urgent,A same-day appointment reschedule needs a timely confirmation from the recipient despite the muted group.,0.8,message_0226;message_0359
-msg_057,notify,urgent,"Direct @-mention asking recipient to urgently debug a failing build before a client update, matching a pattern this user reliably responds to.",0.9,message_0059;message_0169;message_0003
-msg_058,mute,forward,"Chain-letter style forwarded health hoax in a group the recipient has explicitly muted, matching past dismissed patterns.",0.93,message_0241;message_0039;message_0040;message_0078;message_0124
-msg_059,mute,scam,Unsolicited request for account details with artificial urgency is a classic phishing pattern in a large marketplace group.,0.95,message_0196;message_0200;message_0214;message_0086
-msg_060,notify,urgent,Same-day hard deadline for internship approval form submission requires prompt action from this engaged group member.,0.87,message_0284;message_0176;message_0375
-msg_061,mute,forward,"Mass-forwarded chain-blessing message in a family group the user has explicitly muted, matching a pattern the user consistently dismisses.",0.94,message_0080;message_0042;message_0177;message_0193
-msg_062,notify,unknown,"Combines a legitimate same-day fire alarm operational notice with a mass-forwarded missing-person poster unrelated to this society, so it needs human judgment rather than auto-suppression.",0.45,message_0043
-msg_063,mute,scam,"Classic urgency-plus-QR-payment-plus-screenshot scam pattern in a food-finds group, matching prior reported scam messages.",0.96,message_0181;message_0182
-msg_064,mute,scam,"Classic phishing urgency pattern (verify wallet/card details before a deadline) disguised with unrelated promotional media, matching prior reported scam messages in this group.",0.93,message_0201;message_0087;message_0183
-msg_065,digest,promotion,"Marketing message from Target promoting a shopping benefit, low urgency and matches prior similar promotions the user has opened but not acted urgently on.",0.85,message_0261;message_0186;message_0185
-msg_066,mute,promotion,"Marketing message from a business the user has explicitly opted out of, and content/branding mismatch (Amazon/ShopCash) further suggests low-value or suspicious promo content.",0.92,message_0188;message_0187
-msg_067,notify,payment,"Same-day deadline for maintenance payment with a late fee, relevant to this admin user in an active society group.",0.78,message_0098;message_0068
-msg_068,digest,event,"Casual non-urgent plan announcement in book club group with a poll coming later, no immediate action needed.",0.88,message_0191
-msg_069,mute,forward,"Mass-forwarded chain positivity message in a family group the user has explicitly muted, matching prior dismissed forwards.",0.94,message_0177;message_0193;message_0194;message_0178;message_0080
-msg_070,mute,scam,"Classic OTP-phishing scam in a large marketplace group, urging urgent verification via link with threat of account block.",0.98,message_0369;message_0213;message_0199;message_0235;message_0056
-msg_071,digest,personal,"A casual family plan with no fixed time, to be confirmed later, so it can wait rather than interrupt now.",0.68,message_0197
-msg_072,mute,scam,"Classic OTP-phishing pressure tactic with urgency and a suspicious link, matching prior scam pattern in this group.",0.96,message_0023;message_0045;message_0053
-msg_073,mute,scam,Mass-forwarded urgency-and-link phishing pattern in a large marketplace group matches prior reported scam messages.,0.94,message_0201;message_0087;message_0202
-msg_074,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0389
-msg_075,notify,business_update,"Legitimate Grab update about an actual ride booked today, timely and actionable for the recipient.",0.85,message_0206;message_0205
-msg_076,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=talabat.com, used=talabat-refund.com, age=12d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
-msg_077,notify,urgent,Same-day deadline for consent form and bus list closing this evening requires timely action from a parent.,0.9,message_0364;message_0051
-msg_078,mute,scam,Mass-forwarded message asking for bank details and a screenshot in a muted marketplace group is a classic phishing pattern.,0.96,message_0211;message_0212
-msg_079,mute,scam,"Classic OTP-phishing pressure tactic in a large marketplace group, matching prior OTP scam patterns.",0.97,message_0369;message_0023;message_0045
-msg_080,notify,urgent,Same-day operational notice requiring cars to be moved within 10 minutes before a repair truck arrives.,0.88,message_0216;message_0130;message_0150;message_0190
-msg_081,notify,urgent,Same-day pickup gate change with a specific time deadline requires prompt parental action.,0.83,message_0217
-msg_082,notify,urgent,"Coworker group message reports live payment failures and requests immediate incident bridge join, matching a prior incident the recipient replied to.",0.88,message_0218
-msg_083,digest,personal,"Non-urgent request for feedback by tomorrow lunch, no immediate action needed tonight.",0.75,message_0219
-msg_084,mute,promotion,"User has explicitly opted out of loan/promo messages from HDFC Bank, and this is another promotional card offer.",0.94,message_0220
-msg_085,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=hdfc.bank.in, used=hdfcbank-kyc.in, age=17d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
-msg_086,notify,business_update,"Time-sensitive change to tomorrow's airport pickup from a confirmed travel booking business, matching a prior similar notice the user engaged with.",0.78,message_0222
-msg_087,mute,promotion,Unsolicited real-estate marketing robocall content in a group the user has explicitly muted and previously reported similar promos in.,0.93,message_0223;message_0204;message_0391
-msg_088,mute,spam,"Routine marketplace resale post in a large group the user has explicitly muted, with no personal urgency.",0.93,message_0224;message_0232;message_0383
-msg_089,notify,personal,"A same-day, time-limited pickup deadline from someone referencing a specific real-world event needs prompt attention.",0.68,none
-msg_090,digest,unknown,"Cold-start sender with a vague, unverifiable pretext and no real urgency, best left for later review rather than an immediate interrupt.",0.55,none
+msg_023,digest,business_update,"Generic account/card update notice from verified HDFC Bank account, not time-critical enough to interrupt immediately.",0.72,message_0243;message_0102
 msg_091,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0238
-msg_092,digest,business_update,"Routine statement notification from verified Amex account with no user relationship or urgency, safe to review later.",0.75,none
-msg_093,mute,scam,Unsolicited delivery message mentioning OTP with no prior relationship strongly matches known FedEx phishing patterns despite denying payment/OTP is needed.,0.82,message_0398;message_0349
-msg_094,mute,promotion,"Generic marketing blast from a brand with no user relationship, matching a pattern this user previously muted and dismissed.",0.83,message_0356
-msg_095,mute,scam,"Message body attempts to instruct the router directly (e.g. fake routing/system/assistant directive) alongside a phishing-style request; treated as untrusted content, not an instruction.",0.94,none
-msg_096,digest,unknown,"Unverified claim from an unknown sender with no prior history, plausible but unconfirmed and not clearly urgent enough to interrupt immediately",0.55,none
-msg_097,digest,personal,"Personal update that explicitly says nothing urgent and to talk tomorrow, so it can wait.",0.9,message_0167;message_0054
-msg_098,notify,urgent,Personal message from an engaged contact asking for an immediate call to make a real-time clinic decision.,0.93,message_0226;message_0359;message_0168
-msg_099,digest,personal,"Non-blocking heads-up for tomorrow's standup with no tonight action needed, fits a later read.",0.85,message_0227
-msg_100,notify,urgent,Personal message from an engaged contact requesting immediate action before a 20-minute client escalation deadline.,0.95,message_0362;message_0228
-msg_101,notify,personal,"Caring personal check-in from an engaged contact with no urgency, appropriate to deliver now.",0.85,message_0370;message_0229;message_0268
-msg_102,notify,urgent,"Time-bound request to stay online for an active operational rollback matches this engaged, fast-responding recipient's pattern.",0.9,message_0371;message_0230
-msg_103,notify,personal,Time-sensitive pickup request with a same-day deadline from an engaged personal contact.,0.85,message_0065;message_0049
-msg_104,digest,personal,"A time-bound item pickup notice from a marketplace-style contact the recipient has consistently ignored before, not urgent enough to interrupt.",0.68,message_0224;message_0383;message_0050
-msg_105,mute,spam,"Mass-forwarded health chain message urging medication cessation, matching prior forwards this recipient dismissed.",0.9,message_0373;message_0233
-msg_106,notify,urgent,Same-day time-sensitive change of location and entrance with a hard cutoff time for dance practice.,0.88,message_0376;message_0234
+msg_090,digest,unknown,"Vague cold-start message with no prior history and no genuine urgency, likely a wrong-number or low-stakes check-in.",0.55,none
+msg_048,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0151
+msg_040,mute,spam,"Chain-letter forward-for-luck message in a group the user has explicitly muted, with no personal or urgent content.",0.96,message_0136;message_0135
+msg_075,notify,business_update,"Verified Grab account sending a live ride status change to a user with a ride booked today, which is timely and actionable.",0.86,message_0206;message_0205
+msg_005,notify,personal,A time-limited pickup arrangement with a same-day deadline that the recipient has previously engaged with similar messages about.,0.72,message_0065;message_0049
+msg_104,mute,spam,Matches a recurring low-engagement marketplace pickup pattern the recipient has consistently ignored and dismissed before.,0.78,message_0224;message_0383;message_0232;message_0050
+msg_069,mute,forward,"Mass-forwarded chain message in a group the user has explicitly muted, matching prior dismissed forwards.",0.95,message_0177;message_0193;message_0194;message_0178;message_0080
 msg_107,mute,scam,"Message body attempts to instruct the router directly (e.g. fake routing/system/assistant directive) alongside a phishing-style request; treated as untrusted content, not an instruction.",0.94,message_0023;message_0045;message_0053;message_0056
-msg_108,mute,scam,"Message body attempts to instruct the router directly (e.g. fake routing/system/assistant directive) alongside a phishing-style request; treated as untrusted content, not an instruction.",0.94,none
+msg_070,mute,scam,"Classic OTP-phishing scam in a large marketplace group, urging immediate code disclosure via threat of account block.",0.98,message_0369;message_0213;message_0199;message_0235;message_0056
+msg_003,notify,business_update,"Legitimate Amazon order update matching an expected delivery today, from a verified business account with consistent engagement.",0.9,message_0400;message_0031
+msg_099,digest,personal,"Non-urgent heads-up to read notes before tomorrow's standup, no action needed tonight.",0.88,message_0227
+msg_008,digest,business_update,"Routine post-purchase review request from a verified business the recipient has engaged with, with no urgency.",0.87,message_0296;message_0071;message_0072
+msg_092,digest,business_update,"Routine statement notification from a verified Amex account with no urgency or prior engagement, safe to review later.",0.72,none
+msg_060,notify,urgent,"Same-day hard deadline for internship approval form submission with required documents, matching a pattern this user reliably acts on.",0.88,message_0284;message_0176;message_0375
+msg_004,notify,business_update,"Verified Apollo 24|7 account sending an appointment-related update ahead of the recipient's upcoming clinic appointment, consistent with prior replied messages.",0.7,message_0245;message_0005;message_0063
+msg_030,mute,spam,"Routine resale listing in a marketplace group the user has explicitly muted, matching prior similarly dismissed posts.",0.95,message_0115;message_0335
+msg_045,notify,urgent,Time-sensitive delivery request requiring confirmation within 10 minutes to let the courier through the gate.,0.62,none
+msg_052,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=talabat.com, used=talabat-refund.com, age=12d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
+msg_009,mute,event,User has explicitly muted this sports group and message is a low-urgency casual plan with no pressure to respond.,0.95,message_0074
+msg_071,digest,personal,"Vague, non-urgent family plan mention with no confirmed time, safe to see later.",0.65,message_0197
+msg_016,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0087;message_0183;message_0201
+msg_065,digest,promotion,"Routine marketing content, and the OCR'd Amazon/ShopCash banner is unrelated to Target's own promotion, suggesting mismatched or low-value promotional content best deferred.",0.72,message_0261
+msg_038,mute,spam,"Classic chain-letter forward-for-luck message with mass-forward signal, matching prior muted/dismissed patterns in this group.",0.94,message_0131;message_0132
+msg_086,notify,business_update,"Time-sensitive change to tomorrow's airport pickup schedule from a confirmed travel booking, despite the mismatched sender domain.",0.72,message_0222
+msg_014,mute,promotion,Promotional offer from a business the recipient has explicitly opted out of receiving promotions from.,0.98,message_0258;message_0018;message_0017;message_0083;message_0084
+msg_094,mute,promotion,"Generic marketing blast from a verified brand with no prior user relationship or engagement, matching a pattern the user historically dismisses.",0.83,message_0356
+msg_029,mute,spam,Mass-forwarded resale listing in a large marketplace group with declining engagement and no personal relevance to recipient.,0.78,message_0095;message_0113;message_0332
+msg_105,mute,spam,"Mass-forwarded health chain message with dangerous medical advice, matching a pattern this recipient previously dismissed and muted.",0.9,message_0373;message_0233
+msg_002,notify,urgent,"Direct @-mention asking recipient for a quick call before a client meeting, time-sensitive and needs prompt response.",0.86,message_0003;message_0059;message_0169
+msg_010,digest,business_update,"Routine post-visit feedback request from a verified cinema brand with no urgency, similar to previously opened messages.",0.85,message_0011;message_0242;message_0075
+msg_078,mute,scam,Mass-forwarded message asking for bank details and a screenshot is a classic phishing pattern in a muted marketplace group.,0.95,message_0211;message_0212
+msg_013,mute,spam,"Off-topic classified-ad style sales post in a faculty advising group, irrelevant to academic content.",0.86,none
+msg_018,mute,scam,Mass-forwarded prize/voucher lure matching a pattern this user has previously reported and muted.,0.95,message_0026;message_0092
+msg_044,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0143
+msg_032,digest,unknown,"Routine non-urgent classmate request for lecture slides, explicitly no rush, fits low-priority group chatter to batch.",0.72,message_0119;message_0285
+msg_106,notify,urgent,"Same-day time-sensitive change to dance practice location with a hard entry deadline, in an engaged personal thread.",0.86,message_0376;message_0234
+msg_006,notify,urgent,"Same-day deadline notice about maintenance payment closing at 5 PM, relevant to an engaged admin in this society group.",0.82,message_0029;message_0044
 msg_109,mute,scam,"Message body attempts to instruct the router directly (e.g. fake routing/system/assistant directive) alongside a phishing-style request; treated as untrusted content, not an instruction.",0.94,message_0151
+msg_108,mute,scam,"Message body attempts to instruct the router directly (e.g. fake routing/system/assistant directive) alongside a phishing-style request; treated as untrusted content, not an instruction.",0.94,none
+msg_019,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=chase.com, used=chase-secure-alert.com, age=10d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
+msg_088,mute,spam,"Routine marketplace resale bump in a large group the user has explicitly muted, with a history of dismissing near-identical listings.",0.93,message_0224;message_0232;message_0383
+msg_056,notify,urgent,Directly addresses recipient with a same-day time-sensitive appointment change requiring a prompt confirmation.,0.78,message_0226;message_0359
+msg_027,digest,promotion,"Repeated marketing message with a mismatched sender domain and unrelated poster branding, best batched rather than interrupting.",0.85,message_0272;message_0033;message_0007
+msg_050,digest,unknown,"Vague generic health-update template unlike the pharmacy's usual specific refill/delivery notices, signed by an unrelated 'Team Care Services' name, so treat cautiously rather than as a routine trusted update.",0.55,message_0279;message_0155
+msg_083,digest,personal,"Non-urgent request for comments by tomorrow lunch, safe to review later rather than interrupt now.",0.72,message_0219
+msg_063,mute,scam,"Classic scam pattern combining urgency, payment pressure, QR scan, and screenshot request in a food group where such threats have appeared before.",0.96,message_0182;message_0181
+msg_033,digest,personal,"Warm family check-in explicitly marked as not urgent, so it can wait until later without needing an interruption.",0.75,none
+msg_061,mute,forward,"Mass-forwarded chain blessing in a family group the user has explicitly muted, matching prior dismissed chain messages.",0.95,message_0080;message_0042;message_0177;message_0193
+msg_020,mute,scam,"Unsolicited urgent verification link with shortened URL in a large marketplace group is a classic phishing pattern, not a legitimate notice.",0.92,none
+msg_017,mute,scam,Payment-pressure phishing pattern in a muted marketplace group the user has already reported similar messages from.,0.93,message_0089;message_0090
+msg_058,mute,spam,"Chain-forward health message in an explicitly muted group, matching prior forward-for-luck/health spam pattern.",0.93,message_0241;message_0039;message_0040;message_0078;message_0124
+msg_026,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=amazon.in, used=amazonpay-delivery.in, age=2d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
+msg_047,notify,urgent,"Same-day operational notice affecting lift access from an engaged society group member, needs awareness today.",0.78,message_0001
+msg_046,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0147;message_0148
+msg_042,notify,urgent,Time-sensitive society notice requiring cars near the driveway to be moved within 10 minutes to avoid towing.,0.9,message_0058;message_0140
+msg_079,mute,scam,"Classic OTP-phishing pressure tactic in a large marketplace group, matching prior OTP scam patterns.",0.97,message_0369;message_0023;message_0045
+msg_098,notify,urgent,Personal message asking for an immediate call to help decide about a clinic appointment.,0.92,message_0226;message_0359;message_0168
+msg_037,notify,urgent,"Same-day operational notice that the water tanker is here now with a 10-minute window, requiring immediate action from residents.",0.85,message_0001
+msg_007,digest,event,"Non-urgent society potluck sign-up with a week-long deadline and explicit no-rush framing, so it can wait.",0.87,none
+msg_085,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=hdfc.bank.in, used=hdfcbank-kyc.in, age=17d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
+msg_001,notify,urgent,"Same-day time-sensitive operational notice with a 20-minute action window for residents to fill water, similar to past notices this user engaged with.",0.85,message_0057;message_0139;message_0240
+msg_021,notify,payment,"Same-day payment deadline in a society group where this admin regularly engages with such notices, and the message itself even warns against fraudulent payment links.",0.72,message_0098;message_0068
+msg_028,mute,promotion,"Marketing message from an opted-out user via a mismatched domain, matching a repeated pattern of ignored promos.",0.96,message_0034;message_0112;message_0111
+msg_012,mute,forward,"Mass-forwarded chain health message with share-pressure phrasing, matching a pattern this user consistently dismisses.",0.9,message_0194;message_0178;message_0247;message_0079
+msg_064,mute,scam,"Urgency-based request to verify wallet/card details before a deadline matches known phishing patterns in this group, unrelated to the attached movie ad.",0.93,message_0201;message_0087;message_0183
+msg_103,notify,personal,Time-sensitive personal pickup arrangement with a 6 PM deadline from an engaged contact the recipient has replied to before.,0.83,message_0065;message_0049
+msg_031,notify,urgent,Coworker group message about tonight's sync with explicit prep items and a deadline to close action items before morning.,0.85,message_0249
+msg_057,notify,urgent,"Direct @-mention asking recipient to fix a failing build before a client update, similar to prior threads they actively engaged with.",0.87,message_0059;message_0169;message_0003
+msg_087,mute,promotion,"Unsolicited real-estate marketing robocall content in a group the user has explicitly muted, matching a pattern of prior dismissed/reported similar promos.",0.9,message_0223;message_0204
+msg_067,notify,urgent,"Same-day maintenance payment deadline with late fee threat requires prompt action from the recipient, an engaged admin in this society group.",0.82,message_0098;message_0068
+msg_039,notify,urgent,"Same-day deadline for a specific parent to submit a fee receipt before the field-trip list closes, mirroring past consent-deadline notices that this admin engaged with.",0.78,message_0364;message_0037
+msg_082,notify,urgent,"Coworker group message reports a live incident with payment failures requiring immediate action, matching a prior pattern the recipient engaged with.",0.9,message_0218
+msg_066,mute,scam,"Claims to be a Target account offer but the media is an unrelated Amazon/ShopCash promo, indicating spoofed or mismatched sender content, and the user has already opted out of this business's promotions.",0.85,message_0188;message_0187
+msg_049,notify,business_update,"Legitimate Shopee return pickup notice today with a specific time window, matching the recipient's active return-pickup relationship and engaged history.",0.72,message_0291;message_0153;message_0154
+msg_015,mute,scam,"Classic OTP-phishing request in a large marketplace group, matching prior OTP scam patterns.",0.97,message_0023;message_0045
+msg_051,mute,promotion,"Promotional offer from a business the recipient has explicitly muted/opted out of, matching prior dismissed messages.",0.97,message_0257;message_0103;message_0158
+msg_097,digest,personal,"Sender explicitly says nothing is urgent and to talk tomorrow, so it can wait until later.",0.88,message_0167;message_0054
+msg_089,notify,personal,"A same-day, time-limited personal note about a lost item pickup deadline warrants prompt notice.",0.72,none
+msg_053,digest,business_update,"Routine informational market research post in a stock-tips group, similar to past no-call analysis threads this admin typically reads later.",0.78,message_0411;message_0161;message_0253
+msg_059,mute,scam,Classic phishing pattern requesting bank account details under urgency pressure in a large marketplace group.,0.95,message_0196;message_0200;message_0214;message_0086
+msg_024,mute,promotion,Promotional offer from a business the recipient has explicitly opted out of and consistently dismissed.,0.97,message_0257;message_0103;message_0158
+msg_072,mute,scam,"Classic OTP phishing with urgency and suspicious link, matching prior flagged scam pattern in this group.",0.97,message_0023;message_0045
+msg_036,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=razorpayx.com, used=razorpayx-payouts.com, age=9d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
+msg_076,mute,scam,"Unverified business sending from a recently-registered domain that doesn't match its official domain (official=talabat.com, used=talabat-refund.com, age=12d) -- classic brand-impersonation phishing pattern, not a legitimate account.",0.94,none
+msg_055,notify,urgent,A family member is requesting an immediate call to make a time-sensitive decision within minutes.,0.85,message_0166
+msg_102,notify,urgent,"Time-bound operational request needing the recipient to stay online now, matching a pattern they consistently engage with.",0.93,message_0371;message_0230
+msg_080,notify,urgent,"Same-day operational notice requiring cars to be moved within 10 minutes before repair truck arrives, needs immediate action.",0.9,message_0216;message_0130;message_0150;message_0190
+msg_093,mute,scam,"Unsolicited FedEx-branded message with an OTP-related scam keyword and no prior relationship, a classic pretext despite claiming no OTP is needed.",0.78,none
+msg_034,mute,forward,"Mass-forwarded chain-style blessing message in a family group the recipient has explicitly muted, matching a pattern of prior dismissed forwards.",0.87,message_0123;message_0171;message_0077
+msg_035,digest,promotion,"Marketing pitch from a verified business account with no urgency, fine for later review.",0.88,message_0281;message_0125
+msg_101,notify,personal,"Warm low-urgency personal check-in from an engaged contact, consistent with prior similar messages the recipient opened.",0.85,message_0370;message_0229;message_0268
+msg_041,mute,scam,"Verified school's message but sent via a mismatched, unofficial domain (weurl.co) with a vague survey link, a classic link-redirect phishing pattern.",0.72,message_0137;message_0138
+msg_011,mute,forward,"Mass-forwarded generic good-morning chain message in a group the user has explicitly muted, matching past dismissed forwards.",0.95,message_0013;message_0014;message_0123;message_0171;message_0077
 msg_110,mute,scam,"Message body attempts to instruct the router directly (e.g. fake routing/system/assistant directive) alongside a phishing-style request; treated as untrusted content, not an instruction.",0.94,message_0238
+msg_095,mute,scam,"Message body attempts to instruct the router directly (e.g. fake routing/system/assistant directive) alongside a phishing-style request; treated as untrusted content, not an instruction.",0.94,none
+msg_074,mute,scam,Same sender previously sent messages with this content pattern that this user reported or muted; identity appears trusted but is likely spoofed or compromised.,0.94,message_0389
+msg_073,mute,scam,Mass-forwarded urgency-and-verification-link pattern in a large marketplace group matches known phishing/scam blasts.,0.94,message_0201;message_0087;message_0202
+msg_054,mute,scam,"Classic advance-fee loan scam pattern with urgency pressure, matching this recipient's history of reporting similar payment-link scams in this group.",0.95,message_0389;message_0163;message_0203
+msg_068,digest,event,"Casual group message about a post-match plan poll later tonight, explicitly no urgency.",0.85,message_0191
+msg_100,notify,urgent,"Direct personal request needing immediate action within 20 minutes, matching a pattern this recipient reliably responds to.",0.95,message_0362;message_0228
+msg_062,notify,urgent,Same-day fire alarm test with elevator impact is an operational notice residents need to know before tomorrow morning.,0.72,message_0043
+msg_096,digest,unknown,"Unsolicited claim from an unknown sender with no prior history about a found passport, plausible but unverifiable and not clearly urgent enough given no contact history.",0.45,none
+msg_043,notify,urgent,Same-day time-critical operational notice (water tanker leaving in 15 minutes) in a society group where this user is admin.,0.85,message_0216;message_0130;message_0150
+msg_077,notify,urgent,Same-day deadline for consent form and bus list closing this evening requires prompt parent action.,0.9,message_0364;message_0037;message_0051
+msg_081,notify,urgent,"Same-day operational change to pickup gate and time requires timely parent attention, consistent with a similar past message the recipient acted on.",0.82,message_0217
+msg_025,notify,business_update,"Legitimate order-status update from verified Amazon account, matching a pattern the recipient has previously engaged with by replying.",0.88,message_0239;message_0004;message_0105
+msg_084,mute,promotion,"Promotional credit card offer from a business the user has opted out of loan/promo messages from, with a history of muting similar content.",0.93,message_0220
+msg_022,mute,scam,Payment pressure with urgency deadline plus link-click and screenshot request matches a known scam pattern in this group.,0.93,message_0151;message_0100;message_0099
