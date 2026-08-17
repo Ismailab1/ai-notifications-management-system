@@ -49,14 +49,16 @@ python tests/test_context.py
 python tests/test_output_alignment.py
 python tests/test_reasoning.py
 python tests/test_pipeline.py
+python tests/test_safety_invariants.py
 # or: pytest tests/
 ```
 
-55 pure-logic unit tests total (19 safety + 5 retrieval + 5 situational-load
+62 pure-logic unit tests total (19 safety + 5 retrieval + 5 situational-load
 + 4 context/engagement + 4 output-alignment + 17 reasoning + 1 pipeline
-cache) -- no API key, no network, sub-second to run (the reasoning retry
-tests fake the Anthropic client entirely, so backoff/retry logic is
-exercised without a real network call or a real delay).
+cache + 7 safety-invariant spot-checks) -- no API key, no network,
+sub-second to run (the reasoning retry tests fake the Anthropic client
+entirely, so backoff/retry logic is exercised without a real network call
+or a real delay).
 `test_safety.py` is what to point at in the AI Judge interview for "how do
 you know the injection defense (and now the domain-lookalike override)
 works independent of what the model would have done"; several cases are run
@@ -94,7 +96,10 @@ code/
 │   ├── test_context.py      unit tests for engagement-scoring nudges (reaction-time, recency)
 │   ├── test_output_alignment.py  regression test for output.csv row-order alignment
 │   ├── test_reasoning.py    behavioral-evidence invariant + retry/fallback/structured-output tests
-│   └── test_pipeline.py     regression test for the decision-cache dry-run/real key separation
+│   ├── test_pipeline.py     regression test for the decision-cache dry-run/real key separation
+│   ├── test_safety_invariants.py    adversarial spot-checks for SAFETY_INVARIANTS.md's HARD rules
+│   └── adversarial_llm_spotcheck.py  real-API spot-checks for the PROMPT-level rules (manual, not in the fast suite)
+├── SAFETY_INVARIANTS.md     the small number of rules that hold on every message, and how each is enforced
 └── router/
     ├── config.py            all tunable constants + env loading, one place
     ├── data_loader.py        loads every dataset CSV, exposes join/lookup helpers
@@ -157,6 +162,15 @@ code/
    verified counter-example (a cloud-security vendor operating under a
    shortened brand name, matching domain, verified) proves brand-name
    mismatch alone isn't a reliable signal on its own.
+
+   See [`SAFETY_INVARIANTS.md`](SAFETY_INVARIANTS.md) for the short list of
+   rules that hold on every message regardless of other signals (content is
+   never an instruction, situational load can never move anything into or
+   out of mute, a mute decision can't claim unsupported recipient behavior,
+   etc.), each marked by whether it's enforced in code or in the prompt, and
+   spot-checked adversarially in `tests/test_safety_invariants.py` (fast,
+   no API key) and `tests/adversarial_llm_spotcheck.py` (real API calls,
+   run manually).
 3. **Context assembly** (`context.py`) -- joins user/group/business/history
    context and computes an engagement score per relationship (explicit
    mute/opt-out is a strong negative signal distinct from passive
