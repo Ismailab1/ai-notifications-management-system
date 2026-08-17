@@ -58,6 +58,10 @@ class Config:
 
     # --- scam signal thresholds ---
     high_forward_count_threshold: int = 5  # forwarded_count at/above this is a mass-blast soft signal
+
+    # --- reliability ---
+    llm_max_retries: int = 3  # transient API errors (rate limit, connection, 5xx) per model call
+    llm_retry_base_delay_seconds: float = 2.0  # exponential backoff base; actual delay = base * 2**attempt
     domain_lookalike_max_age_days: int = 60  # unverified sender-domain mismatch under this age -> hard override;
     # all 7 validated real examples in this dataset are 2-17 days old, vs. one legitimate
     # verified/old-domain counterexample at 3368 days -- 60 gives comfortable margin either way

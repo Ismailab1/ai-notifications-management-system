@@ -46,11 +46,17 @@ python tests/test_safety.py
 python tests/test_retrieval.py
 python tests/test_load_signal.py
 python tests/test_context.py
+python tests/test_output_alignment.py
+python tests/test_reasoning.py
+python tests/test_pipeline.py
 # or: pytest tests/
 ```
 
-32 pure-logic unit tests total (18 safety + 5 retrieval + 5 situational-load
-+ 4 context/engagement) -- no API key, no network, sub-second to run.
+55 pure-logic unit tests total (19 safety + 5 retrieval + 5 situational-load
++ 4 context/engagement + 4 output-alignment + 17 reasoning + 1 pipeline
+cache) -- no API key, no network, sub-second to run (the reasoning retry
+tests fake the Anthropic client entirely, so backoff/retry logic is
+exercised without a real network call or a real delay).
 `test_safety.py` is what to point at in the AI Judge interview for "how do
 you know the injection defense (and now the domain-lookalike override)
 works independent of what the model would have done"; several cases are run
@@ -61,7 +67,19 @@ a structural test asserting the `LoadSignal` dataclass has no field shaped
 like a suppression flag -- it documents the "narrow" design promise (see
 Pipeline step 4 below), not just describes it. `test_context.py` covers the
 engagement-scoring nudges (reaction-time, last-reply-at recency) in
-isolation from the LLM call.
+isolation from the LLM call. `test_output_alignment.py` guards against
+`output.csv` ever being written in a different row order than
+`messages.csv` -- the grader compares positionally, not by `message_id`
+join, so a sorted or reordered write would silently tank the score; it
+deliberately corrupts the write order in one case and asserts the
+pre-write guardrail in `main.py` fires. `test_reasoning.py` covers both the
+behavioral-evidence invariant (with a negation-awareness regression test)
+and the retry/fallback machinery -- transient-error backoff, malformed-
+response reformatting, and the conservative fallback decision, all against
+a scripted fake client. `test_pipeline.py` guards the decision cache: a
+dry-run wiring check must never overwrite a previously cached real
+decision for the same message_id, so real and dry-run entries are stored
+under distinct cache keys.
 
 ## How it's built
 
@@ -73,7 +91,10 @@ code/
 │   ├── test_safety.py       unit tests for the deterministic safety rules
 │   ├── test_retrieval.py    unit tests for sparse-text detection + thread-context retrieval
 │   ├── test_load_signal.py  unit tests for the situational-load signal
-│   └── test_context.py      unit tests for engagement-scoring nudges (reaction-time, recency)
+│   ├── test_context.py      unit tests for engagement-scoring nudges (reaction-time, recency)
+│   ├── test_output_alignment.py  regression test for output.csv row-order alignment
+│   ├── test_reasoning.py    behavioral-evidence invariant + retry/fallback/structured-output tests
+│   └── test_pipeline.py     regression test for the decision-cache dry-run/real key separation
 └── router/
     ├── config.py            all tunable constants + env loading, one place
     ├── data_loader.py        loads every dataset CSV, exposes join/lookup helpers
@@ -176,7 +197,18 @@ code/
    picks evidence ids from the retrieved shortlist.
 5. **LLM reasoning** (`reasoning.py`) -- one bounded Claude API call per
    message when no hard override applies: message content and OCR/ASR
-   output are placed in an explicitly labeled, untrusted data block.
+   output are placed in an explicitly labeled, untrusted data block. The
+   response shape is enforced at the API level via structured outputs
+   (`output_config` with a JSON schema), with a second, independent parsing
+   layer that never assumes the schema is the only thing standing between it
+   and a malformed response. Transient API errors (rate limit, connection,
+   5xx) retry with exponential backoff (`llm_max_retries`,
+   `llm_retry_base_delay_seconds`); a response that still fails to parse
+   gets one reformat retry; a decision that mutes while making an
+   unsupported behavioral claim gets one corrective retry. If a row
+   exhausts all of that, it falls back to a conservative, clearly-labeled
+   `digest`/`unknown` decision rather than crashing the batch or silently
+   guessing -- one bad row never costs the other 109.
 6. **Calibration + output** (`pipeline.py`) -- confidence is capped in two
    narrow cases, never a fixed value: a vague cold-start opener with no
    ask caps at `vague_intro_confidence_cap`, and a message that's sparse in

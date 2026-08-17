@@ -21,7 +21,10 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from dataclasses import dataclass
+
+import anthropic
 
 from .config import CFG
 from .context import MessageContext
@@ -32,6 +35,25 @@ ALLOWED_ACTIONS = {"notify", "digest", "mute"}
 ALLOWED_TYPES = {
     "personal", "urgent", "event", "payment", "business_update",
     "promotion", "greeting", "forward", "spam", "scam", "unknown",
+}
+
+# Structured-output schema: constrains the API response itself to this shape
+# rather than relying on prompt instruction + parse-and-repair after the
+# fact. This is the primary defense against malformed output; the parsing in
+# _parse_response below is a second, independent layer of defense (never
+# trust a single mechanism to hold under a schema drift, SDK edge case, or a
+# response that technically validates but still needs value-level cleanup).
+_DECISION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "message_type": {"type": "string", "enum": sorted(ALLOWED_TYPES)},
+        "action": {"type": "string", "enum": sorted(ALLOWED_ACTIONS)},
+        "reason": {"type": "string"},
+        "confidence": {"type": "number"},
+        "evidence_message_ids": {"type": "string"},
+    },
+    "required": ["message_type", "action", "reason", "confidence", "evidence_message_ids"],
+    "additionalProperties": False,
 }
 
 SYSTEM_PROMPT = """You are the reasoning stage of a WhatsApp message notification router.
@@ -352,15 +374,47 @@ def _validate_behavioral_evidence(decision: LlmDecision, ctx: MessageContext, da
     return None
 
 
+# Transient failures the SDK's own default retry (max_retries=2) may still
+# exhaust under sustained load -- retried again at this layer with backoff
+# so a single row's bad luck doesn't cost the whole batch. Non-transient
+# errors (bad request, auth) are not retried here; they'd fail identically
+# every time and should surface immediately.
+_RETRYABLE_EXCEPTIONS = (anthropic.RateLimitError, anthropic.APIConnectionError, anthropic.InternalServerError)
+
+
 def _call_model(client, messages: list[dict]) -> str:
-    response = client.messages.create(
-        model=CFG.model,
-        max_tokens=400,
-        thinking={"type": "disabled"},
-        system=SYSTEM_PROMPT,
-        messages=messages,
+    last_error: Exception | None = None
+    for attempt in range(CFG.llm_max_retries + 1):
+        try:
+            response = client.messages.create(
+                model=CFG.model,
+                max_tokens=400,
+                thinking={"type": "disabled"},
+                system=SYSTEM_PROMPT,
+                output_config={"format": {"type": "json_schema", "schema": _DECISION_SCHEMA}},
+                messages=messages,
+            )
+            return "".join(b.text for b in response.content if getattr(b, "type", None) == "text")
+        except _RETRYABLE_EXCEPTIONS as e:
+            last_error = e
+            if attempt < CFG.llm_max_retries:
+                delay = CFG.llm_retry_base_delay_seconds * (2**attempt)
+                print(f"    [retry {attempt + 1}/{CFG.llm_max_retries}] {type(e).__name__}, backing off {delay:.1f}s")
+                time.sleep(delay)
+    raise last_error  # retries exhausted -- let the caller apply the conservative fallback
+
+
+def _fallback_decision(reason: str) -> LlmDecision:
+    """The conservative, always-safe decision for when model output can't be
+    trusted even after retries. Never crash, never leave a row unrouted --
+    digest is the deliberately non-extreme default (doesn't interrupt like a
+    wrongly-confident notify would, doesn't silently suppress like a
+    wrongly-confident mute would), at a confidence low enough to be honest
+    about the fallback having triggered."""
+    return LlmDecision(
+        message_type="unknown", action="digest", reason=reason,
+        confidence=CFG.sparse_no_grounding_confidence_cap, evidence_message_ids="none",
     )
-    return "".join(b.text for b in response.content if getattr(b, "type", None) == "text")
 
 
 def reason_about_message(client, ctx: MessageContext, evidence: list[EvidenceCandidate], dataset: Dataset) -> LlmDecision:
@@ -380,9 +434,41 @@ CANDIDATE HISTORICAL EVIDENCE (choose evidence_message_ids only from these, or "
 Decide the action, message_type, reason, confidence, and evidence_message_ids for this message."""
 
     valid_ids = {e.message_id for e in evidence}
+    message_id = ctx.message.get("message_id", "?")
     messages = [{"role": "user", "content": user_prompt}]
-    raw = _call_model(client, messages)
-    decision = _parse_response(raw, valid_ids)
+
+    # `messages` and `last_raw` are kept in lockstep throughout: any retry
+    # path below that succeeds appends its own response as the assistant
+    # turn before moving on, so a LATER retry (e.g. the behavioral-evidence
+    # correction) always replays the actual last response, never a stale
+    # one from an earlier failed attempt.
+    try:
+        last_raw = _call_model(client, messages)
+    except Exception as e:
+        # Retries exhausted (or a non-retryable API error) -- never let one
+        # row's API failure abort the whole batch.
+        print(f"    [fallback] {message_id}: model call failed after retries ({type(e).__name__}: {e})")
+        return _fallback_decision(f"Model call failed after retries ({type(e).__name__}); routed conservatively.")
+    messages.append({"role": "assistant", "content": last_raw})
+
+    try:
+        decision = _parse_response(last_raw, valid_ids)
+    except Exception as e:
+        # Structured outputs should make this vanishingly rare, but never
+        # trust a single mechanism -- give the model one chance to
+        # reformat, then fall back rather than crash the run.
+        print(f"    [retry] {message_id}: response failed to parse ({type(e).__name__}), asking for a reformat")
+        messages.append({
+            "role": "user",
+            "content": "Your previous response could not be parsed as the required JSON object. Respond again with ONLY a valid JSON object in the exact required shape.",
+        })
+        try:
+            last_raw = _call_model(client, messages)
+            decision = _parse_response(last_raw, valid_ids)
+        except Exception as e2:
+            print(f"    [fallback] {message_id}: reformat retry also failed ({type(e2).__name__}: {e2})")
+            return _fallback_decision(f"Model response could not be parsed after a retry ({type(e2).__name__}); routed conservatively.")
+        messages.append({"role": "assistant", "content": last_raw})
 
     violation = _validate_behavioral_evidence(decision, ctx, dataset)
     if violation is None:
@@ -390,9 +476,7 @@ Decide the action, message_type, reason, confidence, and evidence_message_ids fo
 
     # One corrective retry: tell the model exactly what didn't check out and
     # ask it to fix it, rather than silently keeping an unsupported claim or
-    # silently discarding evidence. This is the general retry-with-feedback
-    # pattern P4 extends for transient/malformed-response failures.
-    messages.append({"role": "assistant", "content": raw})
+    # silently discarding evidence.
     messages.append({
         "role": "user",
         "content": (
@@ -403,8 +487,14 @@ Decide the action, message_type, reason, confidence, and evidence_message_ids fo
             f"the same action/message_type on other grounds if they hold)."
         ),
     })
-    raw_retry = _call_model(client, messages)
-    retried_decision = _parse_response(raw_retry, valid_ids)
+    try:
+        raw_retry = _call_model(client, messages)
+        retried_decision = _parse_response(raw_retry, valid_ids)
+    except Exception as e:
+        # Same principle as above: a retry-call failure here must not crash
+        # the run either -- fall back rather than propagate.
+        print(f"    [fallback] {message_id}: behavioral-evidence correction retry failed ({type(e).__name__}: {e})")
+        return _fallback_decision(f"Correction retry failed ({type(e).__name__}); routed conservatively.")
 
     if _validate_behavioral_evidence(retried_decision, ctx, dataset) is None:
         return retried_decision
