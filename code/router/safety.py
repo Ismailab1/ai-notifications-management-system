@@ -163,11 +163,27 @@ class SafetySignals:
     domain_lookalike_risk: bool = False
     domain_mismatch_soft: bool = False
     domain_mismatch_detail: str = ""  # e.g. "official=chase.com, used=chase-secure-alert.com, age=10d"
+    # Prior messages from this same business to this same recipient that were
+    # actually reported or muted -- a validated repeat-offense pattern, not
+    # just "this business exists in history." Empty when no such pattern
+    # exists yet (e.g. a first-contact domain-lookalike), which is a
+    # legitimate "none", not a gap.
+    domain_lookalike_evidence_ids: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
     @property
     def hard_override(self) -> dict | None:
-        """If set, the pipeline skips the LLM and writes this row directly."""
+        """If set, the pipeline skips the LLM and writes this row directly.
+
+        All three branches below always pair message_type="scam" with
+        action="mute" -- this is the one (message_type -> action) pairing
+        that's *supposed* to be 100% deterministic, because these rows never
+        reach the LLM at all. It's the documented exception the
+        evaluation harness's type/action-collapse check (see
+        evaluation/main.py::check_type_action_collapse) is told to exempt --
+        every OTHER message_type must show independently-reasoned variation,
+        not a table lookup from the label.
+        """
         if self.injection_detected:
             evidence = (self.compromised_evidence_ids or self.related_history_ids)[:4]
             return {
@@ -192,15 +208,24 @@ class SafetySignals:
                 "evidence_message_ids": ev,
             }
         if self.domain_lookalike_risk:
+            has_prior_pattern = bool(self.domain_lookalike_evidence_ids)
+            reason = (
+                "Unverified business sending from a recently-registered domain that doesn't match "
+                f"its official domain ({self.domain_mismatch_detail}) -- classic brand-impersonation "
+                "phishing pattern, not a legitimate account."
+            )
+            if has_prior_pattern:
+                reason += (
+                    " This recipient has previously reported or muted messages from this same "
+                    "business with the same pattern."
+                )
             return {
                 "action": "mute",
                 "message_type": "scam",
-                "reason": (
-                    "Unverified business sending from a recently-registered domain that doesn't match "
-                    f"its official domain ({self.domain_mismatch_detail}) -- classic brand-impersonation "
-                    "phishing pattern, not a legitimate account."
+                "reason": reason,
+                "evidence_message_ids": (
+                    ";".join(self.domain_lookalike_evidence_ids) if has_prior_pattern else "none"
                 ),
-                "evidence_message_ids": "none",
             }
         return None
 
@@ -260,6 +285,24 @@ def evaluate_safety(dataset: Dataset, message: dict, extracted_media_text: str |
                 sig.domain_lookalike_risk = True
                 sig.domain_mismatch_detail = detail
                 sig.notes.append(f"domain-lookalike hard override: {detail}")
+                # Thread through real supporting evidence when this recipient has
+                # a validated (reported/muted) prior pattern with this exact
+                # business -- never invent it, and "none" stays correct when no
+                # such pattern exists (e.g. a first-contact domain-lookalike).
+                recipient = message.get("user_id", "")
+                business_id = message.get("business_id", "")
+                prior_from_business = [
+                    h for h in dataset.history_for_recipient(recipient)
+                    if h.get("business_id") == business_id
+                ]
+                reported_or_muted = []
+                for h in prior_from_business:
+                    ev = dataset.event(recipient, h["message_id"])
+                    if ev and (ev.get("message_reported") == "1" or ev.get("muted_after_message") == "1"):
+                        reported_or_muted.append(h["message_id"])
+                sig.domain_lookalike_evidence_ids = sorted(reported_or_muted)
+                if reported_or_muted:
+                    sig.notes.append(f"domain-lookalike + prior reported/muted pattern: {reported_or_muted}")
             else:
                 sig.domain_mismatch_soft = True
                 sig.domain_mismatch_detail = detail

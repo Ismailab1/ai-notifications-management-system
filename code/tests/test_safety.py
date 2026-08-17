@@ -248,6 +248,47 @@ def test_domain_lookalike_risk_fires_on_real_dataset_business():
     assert override["message_type"] == "scam"
 
 
+def test_domain_lookalike_threads_through_real_reported_evidence():
+    # business_064 / u_016 in the real dataset (msg_052, msg_076): 4 prior
+    # "Talabat Refund Desk" messages to this same recipient, all reported AND
+    # muted. Before this fix, evidence_message_ids hardcoded to "none" here
+    # regardless of this kind of validated repeat-offense history.
+    biz = {
+        "business_064": {
+            "business_id": "business_064", "display_name": "Talabat Refund Desk",
+            "verified": "0", "official_domain": "talabat.com",
+            "domain_used_by_sender": "talabat-refund.com",
+            "account_age_days": "12", "messages_sent_30d": "0", "user_reports_30d": "0",
+            "domain_used_by_sender_age_days": "12",
+        }
+    }
+    history = [
+        {"message_id": "h1", "user_id": "u_016", "sender_user_id": "", "business_id": "business_064",
+         "conversation_type": "business", "group_id": "", "message_text": "refund could not be processed",
+         "media_type": "", "media_id": "", "forwarded_count": "0"},
+        {"message_id": "h2", "user_id": "u_016", "sender_user_id": "", "business_id": "business_064",
+         "conversation_type": "business", "group_id": "", "message_text": "verify your card details",
+         "media_type": "", "media_id": "", "forwarded_count": "0"},
+    ]
+    events = {
+        ("u_016", "h1"): {"message_reported": "1", "muted_after_message": "1", "message_opened": "0", "message_replied": "0", "notification_dismissed": "1"},
+        ("u_016", "h2"): {"message_reported": "1", "muted_after_message": "1", "message_opened": "0", "message_replied": "0", "notification_dismissed": "1"},
+    }
+    ds = _empty_dataset(business_accounts=biz, message_history=history, message_events=events)
+    message = {
+        "message_id": "msg_052", "user_id": "u_016", "sender_user_id": "",
+        "conversation_type": "business", "group_id": "", "business_id": "business_064",
+        "message_text": "Your food order refund could not be processed automatically.",
+        "media_type": "", "media_id": "", "forwarded_count": "0",
+    }
+    sig = evaluate_safety(ds, message, None)
+    assert sig.domain_lookalike_risk
+    assert sig.domain_lookalike_evidence_ids == ["h1", "h2"]
+    override = sig.hard_override
+    assert override["evidence_message_ids"] == "h1;h2"
+    assert "previously reported or muted" in override["reason"]
+
+
 def test_domain_mismatch_below_verification_bar_is_soft_signal_not_override():
     # Same mismatch shape as above, but old enough (well past the 60-day
     # threshold) that it shouldn't hard-override on age grounds alone --

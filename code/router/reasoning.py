@@ -20,10 +20,12 @@ the safety pre-filter's regexes didn't happen to catch.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 
 from .config import CFG
 from .context import MessageContext
+from .data_loader import Dataset
 from .retrieval import EvidenceCandidate
 
 ALLOWED_ACTIONS = {"notify", "digest", "mute"}
@@ -76,6 +78,22 @@ Two context fields need careful, narrow interpretation:
   only nudge between notify and digest on content that is otherwise safe and
   routine; it never moves anything into or out of mute.
 
+Action is never a mechanical function of message_type. Decide notify/digest/mute
+independently, on the merits of THIS message for THIS recipient -- repetitiveness,
+unwantedness, and any actual behavioral signal from this specific recipient (an
+explicit mute/opt-out, a pattern of dismissed or reported similar content) -- not
+by table lookup from the type label. Concretely: a `forward` with no personal
+framing is NOT automatically low-value. If there is no dismiss/mute/report history
+behind it and the content itself is routine or benign, it can and should land in
+digest; only mute a forward when there's an actual negative behavioral signal (an
+explicit mute, a pattern of dismissed/reported similar forwards) or a genuine
+safety concern. The same principle applies to `spam` -- weigh this recipient's own
+history with similar content, don't mute on the label alone. `scam` is the one
+type where the label itself is close to definitionally unsafe (and much of it
+never reaches you at all -- see the hard-override note above), so muting it by
+default is usually correct; that is a property of what "scam" means, not a
+shortcut you should extend to other types.
+
 Respond with ONLY a JSON object, no other text, in exactly this shape:
 {"message_type": "...", "action": "...", "reason": "...", "confidence": 0.0, "evidence_message_ids": "..."}
 
@@ -100,7 +118,14 @@ message_type must be one of:
 - unknown: none of the above fit, or too little context to tell
 action must be one of: notify, digest, mute.
 reason should be one short sentence, specific to this message and this recipient.
-confidence is a number from 0 to 1 -- calibrate it, don't default to a fixed value.
+confidence is a number from 0 to 1 -- calibrate it to how strong the evidence is for
+THIS decision, not to which action you picked. Recognizing a clear scam/spam pattern
+can genuinely warrant high confidence, but so can a clearly urgent, well-evidenced
+notify -- don't systematically under-claim confidence on notify just because
+interrupting someone feels like a bigger action than muting, and don't over-claim
+confidence on mute just because a message superficially resembles junk. Calibrate
+against the evidence in front of you, the same way, regardless of which action it
+points to.
 evidence_message_ids is a semicolon-separated list of ids from the shortlist, or "none".
 """
 
@@ -245,7 +270,100 @@ def _parse_response(raw: str, valid_ids: set[str]) -> LlmDecision:
     return LlmDecision(message_type=mtype, action=action, reason=reason, confidence=confidence, evidence_message_ids=ev)
 
 
-def reason_about_message(client, ctx: MessageContext, evidence: list[EvidenceCandidate]) -> LlmDecision:
+# ---------------------------------------------------------------------------
+# Semantic invariant: a MUTE decision whose "this user did X before" claim
+# must be grounded in a real message_events.csv row for THIS recipient
+# showing THAT specific action -- never a message they merely opened,
+# ignored, or a similar-looking one from someone else. Checked in code, not
+# just prompted for, because a model can misremember or over-generalize from
+# a similar-but-different historical row.
+#
+# Deliberately scoped to action == "mute" only (matching the invariant this
+# exists to enforce: an unsupported behavioral claim excusing a suppression
+# decision) -- a notify/digest decision that mentions "no prior mute" as
+# context for why it ISN'T being suppressed is a different, legitimate
+# claim, not something this check should touch.
+#
+# Also negation-aware: "has NOT been muted before" must not be treated the
+# same as "was muted before" -- a bare verb match with no negation check
+# would demand evidence for the opposite of what was actually claimed.
+# ---------------------------------------------------------------------------
+
+_NEGATION_LOOKBACK_CHARS = 25
+_NEGATION_WORDS = re.compile(r"\b(not|never|no|n't|isn't|wasn't|hasn't|doesn't|didn't|without)\b", re.I)
+
+_BEHAVIOR_CLAIM_PATTERNS: dict[str, re.Pattern] = {
+    "notification_dismissed": re.compile(r"\bdismiss(ed|es|ing)?\b", re.I),
+    "message_reported": re.compile(r"\breport(ed|s|ing)?\b", re.I),
+    "muted_after_message": re.compile(r"\bmut(ed|es|ing)?\b", re.I),
+}
+
+
+def _claims_positively(text: str, pattern: re.Pattern) -> bool:
+    """True if `pattern` matches `text` at least once WITHOUT a negation word
+    in the preceding window -- "user dismissed this" claims dismissal;
+    "user has not dismissed this" (or "never", "no history of dismissing")
+    does not, and must not be treated as if it did."""
+    for m in pattern.finditer(text):
+        window_start = max(0, m.start() - _NEGATION_LOOKBACK_CHARS)
+        preceding = text[window_start:m.start()]
+        if not _NEGATION_WORDS.search(preceding):
+            return True
+    return False
+
+
+def _validate_behavioral_evidence(decision: LlmDecision, ctx: MessageContext, dataset: Dataset) -> str | None:
+    """Returns a description of the violation if a MUTE decision's `reason`
+    positively claims this recipient dismissed/reported/muted something
+    before, but the cited evidence doesn't actually show that recipient
+    taking that action -- or returns None if the invariant holds (including
+    when the decision isn't a mute, or reason makes no such claim at all,
+    which are both the common case)."""
+    if decision.action != "mute":
+        return None
+
+    claimed_fields = [
+        field for field, pattern in _BEHAVIOR_CLAIM_PATTERNS.items()
+        if _claims_positively(decision.reason, pattern)
+    ]
+    if not claimed_fields:
+        return None
+
+    recipient = ctx.message.get("user_id", "")
+    cited_ids = [x for x in decision.evidence_message_ids.split(";") if x and x != "none"]
+    if not cited_ids:
+        return (
+            f"reason claims recipient behavior ({', '.join(claimed_fields)}) but "
+            f"evidence_message_ids is 'none' -- no row to ground the claim in"
+        )
+
+    unsupported = []
+    for field in claimed_fields:
+        supported = any((dataset.event(recipient, mid) or {}).get(field) == "1" for mid in cited_ids)
+        if not supported:
+            unsupported.append(field)
+
+    if unsupported:
+        return (
+            f"reason claims {', '.join(unsupported)} but none of the cited evidence ids "
+            f"{cited_ids} have a message_events.csv row for recipient {recipient!r} with "
+            f"that field set to '1'"
+        )
+    return None
+
+
+def _call_model(client, messages: list[dict]) -> str:
+    response = client.messages.create(
+        model=CFG.model,
+        max_tokens=400,
+        thinking={"type": "disabled"},
+        system=SYSTEM_PROMPT,
+        messages=messages,
+    )
+    return "".join(b.text for b in response.content if getattr(b, "type", None) == "text")
+
+
+def reason_about_message(client, ctx: MessageContext, evidence: list[EvidenceCandidate], dataset: Dataset) -> LlmDecision:
     text = (ctx.message.get("message_text") or "").strip()
     media_block = f"\n[extracted media content]: {ctx.extracted_media_text}" if ctx.extracted_media_text else ""
 
@@ -261,13 +379,47 @@ CANDIDATE HISTORICAL EVIDENCE (choose evidence_message_ids only from these, or "
 
 Decide the action, message_type, reason, confidence, and evidence_message_ids for this message."""
 
-    response = client.messages.create(
-        model=CFG.model,
-        max_tokens=400,
-        thinking={"type": "disabled"},
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_prompt}],
-    )
-    raw = "".join(b.text for b in response.content if getattr(b, "type", None) == "text")
     valid_ids = {e.message_id for e in evidence}
-    return _parse_response(raw, valid_ids)
+    messages = [{"role": "user", "content": user_prompt}]
+    raw = _call_model(client, messages)
+    decision = _parse_response(raw, valid_ids)
+
+    violation = _validate_behavioral_evidence(decision, ctx, dataset)
+    if violation is None:
+        return decision
+
+    # One corrective retry: tell the model exactly what didn't check out and
+    # ask it to fix it, rather than silently keeping an unsupported claim or
+    # silently discarding evidence. This is the general retry-with-feedback
+    # pattern P4 extends for transient/malformed-response failures.
+    messages.append({"role": "assistant", "content": raw})
+    messages.append({
+        "role": "user",
+        "content": (
+            f"Your previous answer's `reason` claims specific behavior by this recipient that "
+            f"the cited evidence doesn't actually support: {violation}. Respond again with a "
+            f"corrected JSON object -- either cite evidence_message_ids that genuinely show this "
+            f"recipient took that action, or rewrite `reason` to not claim it (you can still reach "
+            f"the same action/message_type on other grounds if they hold)."
+        ),
+    })
+    raw_retry = _call_model(client, messages)
+    retried_decision = _parse_response(raw_retry, valid_ids)
+
+    if _validate_behavioral_evidence(retried_decision, ctx, dataset) is None:
+        return retried_decision
+
+    # Retry still doesn't check out -- never ship an unsupported behavioral
+    # claim. Keep the action/type/confidence (they may well be right on other
+    # grounds) but fall back to a conservative, honest reason and drop the
+    # evidence that didn't hold up rather than guessing which part was wrong.
+    return LlmDecision(
+        message_type=retried_decision.message_type,
+        action=retried_decision.action,
+        reason=(
+            f"{retried_decision.message_type.capitalize()} content flagged for this recipient; "
+            f"specific behavioral history could not be verified against recorded events."
+        ),
+        confidence=min(retried_decision.confidence, CFG.sparse_no_grounding_confidence_cap),
+        evidence_message_ids="none",
+    )

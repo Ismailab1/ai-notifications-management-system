@@ -120,12 +120,15 @@ class Router:
         }
 
     def _decide(self, message_id: str, ctx, evidence) -> LlmDecision:
-        cache_key = message_id
+        # Dry-run placeholders and real LLM decisions are never interchangeable
+        # -- distinct keys so a dry-run WRITE can never clobber a previously
+        # cached real decision (or vice versa), not just a distinct READ gate.
+        # A shared key here previously meant a dry-run smoke test could
+        # silently destroy real cached decisions for whatever ids it touched.
+        cache_key = f"{message_id}#dry_run" if self.dry_run else message_id
         ctx_hash = _context_hash(ctx.message, ctx.extracted_media_text)
         cached = self._decision_cache.get(cache_key)
-        # Dry-run placeholders and real LLM decisions are never interchangeable:
-        # a dry-run pass must not poison a later real run's cache, and vice versa.
-        if cached and cached.get("_ctx_hash") == ctx_hash and cached.get("_dry_run") == self.dry_run:
+        if cached and cached.get("_ctx_hash") == ctx_hash:
             d = cached["decision"]
             return LlmDecision(**d)
 
@@ -138,7 +141,7 @@ class Router:
                 evidence_message_ids="none",
             )
         else:
-            decision = reason_about_message(self.client, ctx, evidence)
+            decision = reason_about_message(self.client, ctx, evidence, self.dataset)
 
         self._decision_cache[cache_key] = {
             "_ctx_hash": ctx_hash,
